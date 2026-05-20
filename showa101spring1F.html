@@ -1,7 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>らっきょろぐ</title>
 <style>
@@ -64,24 +65,24 @@ button {
 }
 
 button#addRow {
-    padding: 10px 14px;
-    font-size: 16px;
+    padding: 8px 8px;
+    font-size: 14px;
     background: var(--primary);
     color: white;
     white-space: nowrap;
 }
 
 button#backupSave {
-    padding: 10px 14px;
-    font-size: 16px;
+    padding: 8px 8px;
+    font-size: 14px;
     background: var(--backup);
     color: white;
     white-space: nowrap;
 }
 
 button#backupLoad {
-    padding: 10px 14px;
-    font-size: 16px;
+    padding: 8px 8px;
+    font-size: 14px;
     background: var(--secondary);
     color: white;
     white-space: nowrap;
@@ -150,12 +151,14 @@ select {
 
 .native-date {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
     cursor: pointer;
     z-index: 2;
+    display: block;
 }
 
 .date-display {
@@ -166,7 +169,6 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
     font-size: 14px;
     position: relative;
     z-index: 1;
@@ -186,8 +188,8 @@ select {
 }
 
 .color-btn {
-    width: 9px;
-    height: 9px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     border: 1px solid #888;
     cursor: pointer;
@@ -196,7 +198,6 @@ select {
 
 .orange { background: rgba(255,165,0,0.5); }
 .green  { background: rgba(0,128,0,0.5); }
-.red    { background: rgba(255,0,0,0.5); }
 .blue   { background: rgba(0,191,255,0.5); }
 
 .delete-btn {
@@ -241,9 +242,9 @@ select {
     <div class="top-panel">
         <div class="top-actions">
             <div id="rate">完登率: 0%</div>
-            <button id="addRow" type="button">行を追加</button>
-            <button id="backupSave" type="button">バックアップ保存</button>
-            <button id="backupLoad" type="button">バックアップ読込</button>
+            <button id="addRow" type="button">行追加</button>
+            <button id="backupSave" type="button">保存</button>
+            <button id="backupLoad" type="button">読込</button>
             <input id="backupFileInput" class="hidden-file-input" type="file" accept=".json,application/json">
         </div>
     </div>
@@ -415,10 +416,9 @@ function createRow(data = {}, index = 1) {
                 data-grade-color="${initialGradeColor}"
             >
             <div class="color-buttons">
-                <div class="color-btn orange" data-color="rgba(255,165,0,0.5)" title="オレンジ"></div>
-                <div class="color-btn green" data-color="rgba(0,128,0,0.5)" title="グリーン"></div>
-                <div class="color-btn red" data-color="rgba(255,0,0,0.5)" title="レッド"></div>
-                <div class="color-btn blue" data-color="rgba(0,191,255,0.5)" title="ブルー"></div>
+                <div class="color-btn orange" data-color="rgba(255,165,0,0.5)"></div>
+                <div class="color-btn green" data-color="rgba(0,128,0,0.5)"></div>
+                <div class="color-btn blue" data-color="rgba(0,191,255,0.5)"></div>
             </div>
         </td>
         <td class="result-cell">
