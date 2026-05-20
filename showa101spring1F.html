@@ -1,0 +1,588 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>らっきょろぐ</title>
+<style>
+:root {
+    --page-bg: #f5f5f7;
+    --panel-bg: rgba(245,245,247,0.96);
+    --table-bg: #ffffff;
+    --border: #dddddd;
+    --header-bg: #ececec;
+    --primary: #007aff;
+    --danger: #ff3b30;
+    --secondary: #34c759;
+    --backup: #5856d6;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    background: var(--page-bg);
+    color: #111;
+}
+
+.page {
+    padding: 12px;
+}
+
+.top-panel {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding-bottom: 10px;
+}
+
+.top-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#rate {
+    font-size: 24px;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 10px;
+    flex: 1 1 180px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button#addRow {
+    padding: 10px 14px;
+    font-size: 16px;
+    background: var(--primary);
+    color: white;
+    white-space: nowrap;
+}
+
+button#backupSave {
+    padding: 10px 14px;
+    font-size: 16px;
+    background: var(--backup);
+    color: white;
+    white-space: nowrap;
+}
+
+button#backupLoad {
+    padding: 10px 14px;
+    font-size: 16px;
+    background: var(--secondary);
+    color: white;
+    white-space: nowrap;
+}
+
+.table-wrap {
+    margin-top: 12px;
+    background: var(--table-bg);
+    border-radius: 12px;
+    overflow: auto;
+    max-height: calc(100vh - 150px);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.03);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid var(--border);
+    padding: 6px;
+    text-align: center;
+    font-size: 14px;
+    vertical-align: middle;
+    background: white;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--header-bg);
+}
+
+col.no-col     { width: 8%; }
+col.date-col   { width: 20%; }
+col.grade-col  { width: 20%; }
+col.result-col { width: 20%; }
+col.done-col   { width: 20%; }
+col.delete-col { width: 12%; }
+
+input[type="text"] {
+    width: 100%;
+    border: none;
+    font-size: 14px;
+    background: transparent;
+    box-sizing: border-box;
+    outline: none;
+}
+
+select {
+    width: 100%;
+    font-size: 14px;
+    box-sizing: border-box;
+    padding: 4px;
+}
+
+.date-wrap {
+    position: relative;
+    width: 100%;
+    min-height: 30px;
+}
+
+.native-date {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.date-display {
+    width: 100%;
+    min-height: 30px;
+    padding: 4px 6px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    font-size: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.date-display.empty {
+    color: #999;
+}
+
+.color-buttons {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.color-btn {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid #888;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.orange { background: rgba(255,165,0,0.5); }
+.green  { background: rgba(0,128,0,0.5); }
+.red    { background: rgba(255,0,0,0.5); }
+.blue   { background: rgba(0,191,255,0.5); }
+
+.delete-btn {
+    padding: 3px 5px;
+    font-size: 10px;
+    background: transparent;
+    color: var(--danger);
+    width: 100%;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    th, td {
+        font-size: 13px;
+        padding: 5px;
+    }
+
+    #rate {
+        font-size: 16px;
+    }
+
+    button#addRow,
+    button#backupSave,
+    button#backupLoad {
+        font-size: 15px;
+        padding: 9px 12px;
+    }
+
+    .delete-btn {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+    <div class="top-panel">
+        <div class="top-actions">
+            <div id="rate">完登率: 0%</div>
+            <button id="addRow" type="button">行を追加</button>
+            <button id="backupSave" type="button">バックアップ保存</button>
+            <button id="backupLoad" type="button">バックアップ読込</button>
+            <input id="backupFileInput" class="hidden-file-input" type="file" accept=".json,application/json">
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table id="logTable">
+            <colgroup>
+                <col class="no-col">
+                <col class="date-col">
+                <col class="grade-col">
+                <col class="result-col">
+                <col class="done-col">
+                <col class="delete-col">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>作成日</th>
+                    <th>Grade</th>
+                    <th>完登</th>
+                    <th>完登日</th>
+                    <th>削除</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+const tbody = document.querySelector("#logTable tbody");
+const backupFileInput = document.getElementById("backupFileInput");
+
+/* 日付表示 */
+function formatDateMMDD(value) {
+    if (!value) return "";
+    const parts = value.split("-");
+    if (parts.length !== 3) return "";
+    return `${parts[1]}/${parts[2]}`;
+}
+
+function updateDateDisplay(wrapper) {
+    const input = wrapper.querySelector(".native-date");
+    const display = wrapper.querySelector(".date-display");
+    const formatted = formatDateMMDD(input.value);
+
+    if (formatted) {
+        display.textContent = formatted;
+        display.classList.remove("empty");
+    } else {
+        display.textContent = "--/--";
+        display.classList.add("empty");
+    }
+}
+
+/* データ取得 */
+function collectRowsFromTable() {
+    const rows = [];
+
+    tbody.querySelectorAll("tr").forEach(tr => {
+        const gradeInput = tr.querySelector(".grade");
+        rows.push({
+            date: tr.querySelector(".date").value,
+            grade: gradeInput.value,
+            gradeColor: gradeInput.dataset.gradeColor || "transparent",
+            result: tr.querySelector(".result").value,
+            doneDate: tr.querySelector(".doneDate").value
+        });
+    });
+
+    return rows;
+}
+
+function saveData() {
+    const rows = collectRowsFromTable();
+    localStorage.setItem("climbingLog", JSON.stringify(rows));
+    updateRate();
+}
+
+function loadData() {
+    const rows = JSON.parse(localStorage.getItem("climbingLog") || "[]");
+
+    tbody.innerHTML = "";
+
+    if (rows.length === 0) {
+        for (let i = 1; i <= 10; i++) {
+            createRow({}, i);
+        }
+    } else {
+        rows.forEach((row, i) => createRow(row, i + 1));
+    }
+
+    renumberRows();
+    updateRate();
+}
+
+function updateRate() {
+    const rows = JSON.parse(localStorage.getItem("climbingLog") || "[]");
+    let total = 0;
+    let completed = 0;
+
+    rows.forEach(r => {
+        if ((r.date || "").trim() !== "") {
+            total++;
+            if (r.result === "○") completed++;
+        }
+    });
+
+    const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
+    document.getElementById("rate").textContent = `完登率: ${rate}%`;
+}
+
+/* 行番号振り直し */
+function renumberRows() {
+    [...tbody.querySelectorAll("tr")].forEach((tr, index) => {
+        tr.querySelector(".row-number").textContent = index + 1;
+    });
+}
+
+/* Grade色 */
+function applyGradeColor(input, color) {
+    const appliedColor = color || "transparent";
+    input.style.backgroundColor = appliedColor === "transparent" ? "transparent" : appliedColor;
+    input.dataset.gradeColor = appliedColor;
+}
+
+function handleColorButtonClick(tr, clickedColor) {
+    const gradeInput = tr.querySelector(".grade");
+    const currentColor = gradeInput.dataset.gradeColor || "transparent";
+
+    const nextColor = (currentColor === clickedColor) ? "transparent" : clickedColor;
+
+    applyGradeColor(gradeInput, nextColor);
+    saveData();
+}
+
+/* 日付セルHTML */
+function createDateCell(className, value) {
+    return `
+        <div class="date-wrap">
+            <input type="date" class="${className} native-date" value="${value || ''}">
+            <div class="date-display ${value ? '' : 'empty'}">${value ? formatDateMMDD(value) : '--/--'}</div>
+        </div>
+    `;
+}
+
+/* 行削除 */
+function deleteRow(tr) {
+    tr.remove();
+    renumberRows();
+    saveData();
+}
+
+/* 行作成 */
+function createRow(data = {}, index = 1) {
+    const tr = document.createElement("tr");
+
+    const initialGradeColor = data.gradeColor || "transparent";
+
+    tr.innerHTML = `
+        <td class="row-number">${index}</td>
+        <td>${createDateCell("date", data.date || "")}</td>
+        <td class="grade-cell">
+            <input
+                type="text"
+                class="grade"
+                value="${data.grade || ''}"
+                data-grade-color="${initialGradeColor}"
+            >
+            <div class="color-buttons">
+                <div class="color-btn orange" data-color="rgba(255,165,0,0.5)" title="オレンジ"></div>
+                <div class="color-btn green" data-color="rgba(0,128,0,0.5)" title="グリーン"></div>
+                <div class="color-btn red" data-color="rgba(255,0,0,0.5)" title="レッド"></div>
+                <div class="color-btn blue" data-color="rgba(0,191,255,0.5)" title="ブルー"></div>
+            </div>
+        </td>
+        <td class="result-cell">
+            <select class="result">
+                <option value="-">-</option>
+                <option value="○">○</option>
+                <option value="×">×</option>
+            </select>
+        </td>
+        <td>${createDateCell("doneDate", data.doneDate || "")}</td>
+        <td>
+            <button type="button" class="delete-btn">&#10004;</button>
+        </td>
+    `;
+
+    const gradeInput = tr.querySelector(".grade");
+    applyGradeColor(gradeInput, initialGradeColor);
+
+    tr.querySelector(".result").value = data.result || "-";
+
+    tr.querySelectorAll('input[type="text"], select').forEach(el => {
+        el.addEventListener("input", saveData);
+        el.addEventListener("change", saveData);
+    });
+
+    tr.querySelectorAll(".date-wrap").forEach(wrapper => {
+        const input = wrapper.querySelector(".native-date");
+        updateDateDisplay(wrapper);
+
+        input.addEventListener("input", () => {
+            updateDateDisplay(wrapper);
+            saveData();
+        });
+
+        input.addEventListener("change", () => {
+            updateDateDisplay(wrapper);
+            saveData();
+        });
+    });
+
+    tr.querySelectorAll(".color-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            handleColorButtonClick(tr, btn.dataset.color);
+        });
+    });
+
+    tr.querySelector(".delete-btn").addEventListener("click", () => {
+        deleteRow(tr);
+    });
+
+    tbody.appendChild(tr);
+}
+
+/* バックアップ保存 */
+function createBackupFileName() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mi = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `climbing-log-backup-${yyyy}${mm}${dd}-${hh}${mi}${ss}.json`;
+}
+
+function exportBackup() {
+    saveData();
+
+    const rows = JSON.parse(localStorage.getItem("climbingLog") || "[]");
+    const backupData = {
+        app: "Climbing Log",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        rows: rows
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(backupData, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = createBackupFileName();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* バックアップ読込 */
+function isValidBackupRows(rows) {
+    if (!Array.isArray(rows)) return false;
+
+    return rows.every(row =>
+        typeof row === "object" &&
+        row !== null &&
+        "date" in row &&
+        "grade" in row &&
+        "gradeColor" in row &&
+        "result" in row &&
+        "doneDate" in row
+    );
+}
+
+async function importBackupFile(file) {
+    try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+
+        let rows;
+
+        // rowsだけの旧形式にも対応
+        if (Array.isArray(parsed)) {
+            rows = parsed;
+        } else if (parsed && Array.isArray(parsed.rows)) {
+            rows = parsed.rows;
+        } else {
+            throw new Error("バックアップ形式が正しくありません。");
+        }
+
+        if (!isValidBackupRows(rows)) {
+            throw new Error("バックアップデータの中身が正しくありません。");
+        }
+
+        const ok = confirm("現在のデータを上書きしてバックアップを読込みますか？");
+        if (!ok) return;
+
+        localStorage.setItem("climbingLog", JSON.stringify(rows));
+        loadData();
+        alert("バックアップを読込みました。");
+    } catch (error) {
+        alert("バックアップ読込に失敗しました。\n" + error.message);
+    } finally {
+        backupFileInput.value = "";
+    }
+}
+
+/* 行追加 */
+document.getElementById("addRow").addEventListener("click", () => {
+    createRow({}, tbody.children.length + 1);
+    saveData();
+});
+
+/* バックアップ保存 */
+document.getElementById("backupSave").addEventListener("click", () => {
+    exportBackup();
+});
+
+/* バックアップ読込 */
+document.getElementById("backupLoad").addEventListener("click", () => {
+    backupFileInput.click();
+});
+
+backupFileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    importBackupFile(file);
+});
+
+/* 初期表示 */
+loadData();
+</script>
+</body>
+</html>
