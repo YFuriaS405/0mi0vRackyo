@@ -301,7 +301,6 @@ function updateDateDisplay(wrapper) {
     }
 }
 
-/* データ取得 */
 function collectRowsFromTable() {
     const rows = [];
 
@@ -355,7 +354,7 @@ function updateRate() {
     });
 
     const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
-    document.getElementById("rate").textContent = `完登率: ${rate}%`;
+    document.getElementById("rate").textContent = `完登率: ${rate}%(${completed}/${total})`;
 }
 
 /* 行番号振り直し */
