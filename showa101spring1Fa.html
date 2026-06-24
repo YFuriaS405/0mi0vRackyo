@@ -43,10 +43,9 @@ body {
     padding-bottom: 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* 1行目と2行目の余白 */
+    gap: 10px; 
 }
 
-/* 1行目: 完登率 */
 #rate {
     background: white;
     border-radius: 8px;
@@ -57,7 +56,7 @@ body {
 .rate-main {
     font-size: 20px;
     font-weight: bold;
-    text-align: center;
+    text-align: left;
     margin-bottom: 8px;
     color: #333;
 }
@@ -65,7 +64,7 @@ body {
 .rate-sub {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: left;
     gap: 8px;
 }
 
@@ -81,7 +80,6 @@ body {
 .badge-blue   { background: rgba(0,191,255,0.5); }
 .badge-gray   { background: rgba(128,128,128,0.5); }
 
-/* 2行目: ボタン群 (元のサイズで横並び) */
 .top-actions {
     display: flex;
     gap: 6px;
@@ -424,10 +422,10 @@ function updateRate() {
     const mainText = `<div class="rate-main">完登率: ${rate}% (${completed}/${total})</div>`;
     const subText = `
         <div class="rate-sub">
-            <span class="rate-badge badge-orange">Orange: ${org.comp}/${org.total}</span>
-            <span class="rate-badge badge-green">Green: ${grn.comp}/${grn.total}</span>
-            <span class="rate-badge badge-blue">Blue: ${blu.comp}/${blu.total}</span>
-            <span class="rate-badge badge-gray">Gray: ${gry.comp}/${gry.total}</span>
+            <span class="rate-badge badge-orange">${org.comp}/${org.total}</span>
+            <span class="rate-badge badge-green">${grn.comp}/${grn.total}</span>
+            <span class="rate-badge badge-blue">${blu.comp}/${blu.total}</span>
+            <span class="rate-badge badge-gray">${gry.comp}/${gry.total}</span>
         </div>
     `;
 
@@ -441,7 +439,6 @@ function renumberRows() {
     });
 }
 
-/* Grade色 */
 function applyGradeColor(input, color) {
     const appliedColor = color || "transparent";
     input.style.backgroundColor = appliedColor === "transparent" ? "transparent" : appliedColor;
